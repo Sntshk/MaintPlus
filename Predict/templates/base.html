@@ -1,76 +1,109 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>{% block title %}MaintPlus Dashboard{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MaintPlus{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <style>
         body {
+            /* 
+            THIS IS THE CORRECTED PATH
+            It uses the 'Predict' namespace because your image is in 'static/Predict/'
+            */
             background-image: url("{% static 'Predict/thermal_power_plant_morning.png' %}");
-            background-size: cover;        /* cover the whole screen */
-            background-repeat: no-repeat;   /* don't tile */
-            background-attachment: fixed;   /* don't scroll */
-            background-position: center;    /* center the image */
+            
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #333;
         }
 
-        /* Optional: Add a subtle overlay for readability */
-        main {
-            background: rgba(255,255,255,0.85);
+        .wrapper {
+            display: flex;
+        }
+
+        #sidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 999;
+            background: rgba(33, 37, 41, 0.9); /* Semi-transparent dark background */
+            color: #fff;
+            transition: all 0.3s;
+            padding-top: 1.5rem;
+        }
+
+        #sidebar .nav-link {
+            color: #adb5bd;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            display: block;
+        }
+
+        #sidebar .nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        #sidebar .navbar-brand {
+            padding: 0 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        #main-content {
+            width: 100%;
             padding: 20px;
-            border-radius: 10px;
-            margin: 40px auto;
-            max-width: 1000px;
-        }
-            /* Simple menu styling */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-        header {
-            background: #004080;
-            padding: 10px 20px;
-            color: white;
-        }
-        nav ul {
-            margin: 0; padding: 0; list-style: none; display: flex;
-        }
-        nav ul li {
-            margin-right: 15px;
-        }
-        nav ul li a {
-            color: white; text-decoration: none; font-weight: bold;
-        }
-        nav ul li a:hover {
-            text-decoration: underline;
-        }
-        main {
-            padding: 20px;
+            margin-left: 250px; /* Must be the same as the sidebar width */
+            transition: all 0.3s;
         }
     </style>
-    
-    {% block extra_head %}{% endblock %}
 </head>
 <body>
-{% load static %}
-<header>
-    <nav>
-        <ul>
-            <li><a href="{% url 'predict_index' %}">Dashboard</a></li>
-            <li><a href="{% url 'equipment_list' %}">Equipment</a></li>
-            <li><a href="{% url 'sensor_list' %}">Sensors</a></li>
-            <li><a href="{% url 'maintenance_event_list' %}">Maintenance Events</a></li>
-            <li><a href="{% url 'sensor_data_list' %}">Sensor Data</a></li>
-            <li><a href="{% url 'prediction_list' %}">Predictions</a></li>
-            <li><a href="{% url 'sensor_trend_forecast' %}">Trend & Forecast</a></li>
-            <li><a href="/admin/">Admin</a></li>  <!-- Admin uses default URL -->
+
+<div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <a class="navbar-brand" href="{% url 'predict_index' %}">MaintPlus</a>
+        </div>
+
+        <ul class="nav flex-column">
+             <li class="nav-item">
+                <a class="nav-link" href="{% url 'equipment_list' %}">Equipment List</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'sensor_list' %}">Sensor List</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'maintenance_event_list' %}">Maintenance Events</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'sensor_data_list' %}">Latest Sensor Data</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'prediction_list' %}">Latest Predictions</a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+            </li>
         </ul>
     </nav>
-</header>
 
-<main>
-    {% block content %}{% endblock %}
-</main>
+    <!-- Page Content -->
+    <div id="main-content">
+        {% block content %}{% endblock %}
+    </div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

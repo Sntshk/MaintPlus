@@ -16,7 +16,7 @@
         {% for equipment in equipments %}
             <li>
                 <a href="{% url 'equipment_detail' equipment.pk %}">
-                    {{ equipment.name }} ({{ equipment.type }})
+                    {{ equipment.name }} ({{ equipment.sensor_count }})
                 </a>
             </li>
         {% empty %}
