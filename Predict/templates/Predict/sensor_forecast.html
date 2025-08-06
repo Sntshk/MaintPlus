@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sensor Trend & Forecast</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MaintPlus{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Sensor Trend and Forecast</h1>
+    <form method="get" id="selectionForm">
+        <label for="equipment">Equipment:</label>
+        <select name="equipment" id="equipment" onchange="document.getElementById('selectionForm').submit();">
+            <option value="">--Select Equipment--</option>
+            {% for eq in equipments %}
+                <option value="{{ eq.id }}" {% if eq.id == selected_equipment_id %}selected{% endif %}>{{ eq.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="sensor">Sensor:</label>
+        <select name="sensor" id="sensor" {% if not sensors %}disabled{% endif %} onchange="document.getElementById('selectionForm').submit();">
+            <option value="">--Select Sensor--</option>
+            {% for sensor in sensors %}
+                <option value="{{ sensor.id }}" {% if sensor.id == selected_sensor_id %}selected{% endif %}>{{ sensor.sensor_type }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if historical %}
+        <h2>Time Series Trend & 10-Period Forecast</h2>
+        <canvas id="trendForecastChart" width="900" height="400"></canvas>
+        {{ historical|json_script:"historical-data-json" }}
+{{ forecast|json_script:"forecast-data-json" }}
+
+        <script>
+            const hist = JSON.parse(document.getElementById('historical-data-json').textContent);
+            const fut = JSON.parse(document.getElementById('forecast-data-json').textContent);
+            const histTimes = hist.map(d => d.timestamp);
+            const histVals = hist.map(d => d.value);
+            const futTimes = fut.map(d => d.timestamp);
+            const futVals = fut.map(d => d.value);
+
+            const ctx = document.getElementById('trendForecastChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: histTimes.concat(futTimes),
+                    datasets: [
+                        {
+                            label: 'Historical',
+                            data: histVals.concat(Array(futVals.length).fill(null)),
+                            borderColor: 'blue',
+                            fill: false,
+                            pointRadius: 2
+                        },
+                        {
+                            label: 'Forecast (Next 10)',
+                            data: Array(histVals.length).fill(null).concat(futVals),
+                            borderColor: 'orange',
+                            borderDash: [4, 3],
+                            fill: false,
+                            pointRadius: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Timestamp' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Sensor Value' }
+                        }
+                    }
+                }
+            });
+        </script>
+    {% elif selected_sensor_id %}
+        <p>No data available for this sensor.</p>
+    {% endif %}
+    {% if historical %}
+    <h2>Time Series Trend &amp; 10-Period Forecast</h2>
+    <canvas id="trendForecastChart" width="900" height="400"></canvas>
+    {{ historical|json_script:"historical-data-json" }}
+    {{ forecast|json_script:"forecast-data-json" }}
+    <script>
+        const hist = JSON.parse(document.getElementById('historical-data-json').textContent);
+        const fut = JSON.parse(document.getElementById('forecast-data-json').textContent);
+
+        const histTimes = hist.map(d => d.timestamp);
+        const histVals = hist.map(d => d.value);
+        const futTimes = fut.map(d => d.timestamp);
+        const futVals = fut.map(d => d.value);
+
+        // Thresholds from context
+        const lowerThreshold = {{ lower_threshold|default:"null" }};
+        const upperThreshold = {{ upper_threshold|default:"null" }};
+
+        // Find excursions for historical/forecast for highlighting
+        function getPointColors(times, vals, forecast=false) {
+            return vals.map((v, idx) => {
+                if (lowerThreshold!==null && v<lowerThreshold) return 'red';
+                if (upperThreshold!==null && v>upperThreshold) return 'red';
+                return forecast ? 'orange' : 'blue';
+            });
+        }
+        const allTimes = histTimes.concat(futTimes);
+        const allVals = histVals.concat(futVals);
+
+        // Individual colors for data points
+        const histPointColors = getPointColors(histTimes, histVals);
+        const futPointColors = getPointColors(futTimes, futVals, true);
+
+        const ctx = document.getElementById('trendForecastChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: allTimes,
+                datasets: [
+                    {
+                        label: 'Historical',
+                        data: histVals.concat(Array(futVals.length).fill(null)),
+                        borderColor: 'blue',
+                        backgroundColor: histPointColors.concat(Array(futVals.length).fill('rgba(0,0,0,0)')),
+                        pointBackgroundColor: histPointColors,
+                        fill: false,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Forecast (Next 10)',
+                        data: Array(histVals.length).fill(null).concat(futVals),
+                        borderColor: 'orange',
+                        backgroundColor: Array(histVals.length).fill('rgba(0,0,0,0)').concat(futPointColors),
+                        pointBackgroundColor: Array(histVals.length).fill('rgba(0,0,0,0)').concat(futPointColors),
+                        borderDash: [4, 3],
+                        fill: false,
+                        pointRadius: 5
+                    },
+                    // Threshold lines
+                    ...(lowerThreshold !== null ? [{
+                        label: 'Lower Threshold',
+                        data: allTimes.map(_=>lowerThreshold),
+                        borderColor: 'red',
+                        borderWidth: 1,
+                        fill: false,
+                        pointRadius: 0,
+                        borderDash: [2,2]
+                    }] : []),
+                    ...(upperThreshold !== null ? [{
+                        label: 'Upper Threshold',
+                        data: allTimes.map(_=>upperThreshold),
+                        borderColor: 'red',
+                        borderWidth: 1,
+                        fill: false,
+                        pointRadius: 0,
+                        borderDash: [2,2]
+                    }] : []),
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Timestamp' }},
+                    y: { title: { display: true, text: 'Sensor Value' }}
+                }
+            }
+        });
+    </script>
+
+    {% if excursions %}
+        <div style="color:red; border:2px solid red; background:#fee; padding:1em; margin-top:1em;">
+            <strong>⚠️ ALERT: Sensor threshold excursions detected!</strong>
+            <ul>
+                {% for e in excursions %}
+                    <li>
+                        Sensor data {{ e.type }} — Value: {{ e.value }} at {{ e.timestamp }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% elif selected_sensor_id %}
+    <p>No data available for this sensor.</p>
+{% endif %}
+
+</body>
+</html>
+{% endblock %}

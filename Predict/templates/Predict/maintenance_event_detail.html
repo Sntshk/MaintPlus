@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MaintPlus{% endblock %}
+
+{% block content %}
+<h1>Maintenance Event Detail</h1>
+<a href="{% url 'maintenance_event_list' %}">Back to Maintenance Events</a>
+
+<p><strong>Equipment:</strong> {{ event.equipment.name }}</p>
+<p><strong>Event Type:</strong> {{ event.event_type }}</p>
+<p><strong>Start Time:</strong> {{ event.start_time }}</p>
+<p><strong>End Time:</strong> {{ event.end_time }}</p>
+<p><strong>Description:</strong> {{ event.description }}</p>
+<p><strong>Fault Code:</strong> {{ event.fault_code }}</p>
+{% endblock %}

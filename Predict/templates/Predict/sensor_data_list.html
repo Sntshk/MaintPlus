@@ -1,0 +1,42 @@
+<!-- Predict/templates/Predict/sensor_data_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recent Sensor Data</title>
+</head>
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MaintPlus{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Latest Sensor Data</h1>
+    <a href="{% url 'predict_index' %}">Back to Dashboard</a>
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Equipment</th>
+                <th>Sensor Type</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in sensor_data %}
+                <tr>
+                    <td>{{ data.timestamp|date:"Y-m-d H:i:s.u" }}</td>
+                    <td>{{ data.sensor.equipment.name }}</td>
+                    <td>{{ data.sensor.sensor_type }}</td>
+                    <td>{{ data.value }}</td>
+                </tr>
+
+            {% empty %}
+                <tr><td colspan="4">No sensor data available.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+{% endblock %}

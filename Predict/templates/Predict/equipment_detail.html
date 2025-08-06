@@ -1,0 +1,30 @@
+<!-- Predict/templates/Predict/equipment_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>{{ equipment.name }} Details</title>
+</head>
+<body>
+    <h1>{{ equipment.name }} - Details</h1>
+    <a href="{% url 'equipment_list' %}">Back to Equipment List</a>
+    
+    <p>Type: {{ equipment.type }}</p>
+    <p>Location: {{ equipment.location }}</p>
+    <p>Commissioning Date: {{ equipment.commissioning_date }}</p>
+    <p>Status: {{ equipment.status }}</p>
+
+    <h2>Sensors</h2>
+    <ul>
+        {% for sensor in sensors %}
+            <li>{{ sensor.sensor_type }} (Unit: {{ sensor.unit }})</li>
+        {% empty %}
+            <li>No sensors found for this equipment.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+{% endblock %}

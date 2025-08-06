@@ -1,0 +1,76 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}MaintPlus Dashboard{% endblock %}</title>
+    <style>
+        body {
+            background-image: url("{% static 'Predict/thermal_power_plant_morning.png' %}");
+            background-size: cover;        /* cover the whole screen */
+            background-repeat: no-repeat;   /* don't tile */
+            background-attachment: fixed;   /* don't scroll */
+            background-position: center;    /* center the image */
+        }
+
+        /* Optional: Add a subtle overlay for readability */
+        main {
+            background: rgba(255,255,255,0.85);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 40px auto;
+            max-width: 1000px;
+        }
+            /* Simple menu styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        header {
+            background: #004080;
+            padding: 10px 20px;
+            color: white;
+        }
+        nav ul {
+            margin: 0; padding: 0; list-style: none; display: flex;
+        }
+        nav ul li {
+            margin-right: 15px;
+        }
+        nav ul li a {
+            color: white; text-decoration: none; font-weight: bold;
+        }
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+        main {
+            padding: 20px;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% load static %}
+<header>
+    <nav>
+        <ul>
+            <li><a href="{% url 'predict_index' %}">Dashboard</a></li>
+            <li><a href="{% url 'equipment_list' %}">Equipment</a></li>
+            <li><a href="{% url 'sensor_list' %}">Sensors</a></li>
+            <li><a href="{% url 'maintenance_event_list' %}">Maintenance Events</a></li>
+            <li><a href="{% url 'sensor_data_list' %}">Sensor Data</a></li>
+            <li><a href="{% url 'prediction_list' %}">Predictions</a></li>
+            <li><a href="{% url 'sensor_trend_forecast' %}">Trend & Forecast</a></li>
+            <li><a href="/admin/">Admin</a></li>  <!-- Admin uses default URL -->
+        </ul>
+    </nav>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

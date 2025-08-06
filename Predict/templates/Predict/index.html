@@ -1,0 +1,122 @@
+<!-- Predict/templates/Predict/index.html -->
+<!DOCTYPE html>
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Predictive Maintenance Dashboard</title>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     </head>
+  <body>
+    {% extends 'base.html' %}
+
+{% block title %}Dashboard - MaintPlus{% endblock %}
+
+{% block content %}
+    <h1>Predictive Maintenance Dashboard</h1>
+    <!-- Your page content here -->
+    <p>Total Equipment: {{ equipment_count }}</p>
+    <p>Total Sensor Data Points: {{ sensor_data_count }}</p>
+    <p>Total Predictions: {{ prediction_count }}</p>
+    <!-- keep other dashboard elements -->
+
+<form method="get" id="selectionForm">
+    <label for="equipment">Equipment:</label>
+   <select name="equipment" id="equipment" onchange="document.getElementById('selectionForm').submit();">
+    <option value="">--Select Equipment--</option>
+    {% for eq in equipments %}
+        <option value="{{ eq.id }}" {% if eq.id == selected_equipment_id %}selected{% endif %}>{{ eq.name }}</option>
+    {% endfor %}
+</select>
+
+
+    <label for="sensor">Sensor:</label>
+    <select name="sensor" id="sensor" {% if not sensors %}disabled{% endif %} onchange="document.getElementById('selectionForm').submit();">
+        <option value="">--Select Sensor--</option>
+        {% for sensor in sensors %}
+            <option value="{{ sensor.id }}" {% if sensor.id == selected_sensor_id %}selected{% endif %}>{{ sensor.sensor_type }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+{% if sensor_data %}
+    <h2>Sensor Data Trend</h2>
+    <canvas id="sensorTrendChart" width="800" height="400"></canvas>
+    <script>
+      var labels = {{ sensor_data|json_script:"labels" }};
+      var dataVals = labels.map(d => d.value);
+      var dataTimes = labels.map(d => d.timestamp);
+
+      var ctx = document.getElementById('sensorTrendChart').getContext('2d');
+      new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: dataTimes,
+              datasets: [{
+                  label: "Sensor Value",
+                  data: dataVals,
+                  fill: false,
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  tension: 0.1
+              }]
+          },
+          options: {
+              scales: {
+                  x: { title: { display: true, text: 'Timestamp' }, ticks: { maxRotation: 90, minRotation: 45 } },
+                  y: { title: { display: true, text: 'Value' } }
+              }
+          }
+      });
+    </script>
+{% endif %}
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'equipment_list' %}">Equipment List</a></li>
+            <li><a href="{% url 'sensor_list' %}">Sensor List</a></li>
+            <li><a href="{% url 'maintenance_event_list' %}">Maintenance Events</a></li>
+            <li><a href="{% url 'sensor_data_list' %}">Latest Sensor Data</a></li>
+            <li><a href="{% url 'prediction_list' %}">Latest Predictions</a></li>
+        </ul>
+    </nav>
+
+    <h2>Equipment Distribution by Type</h2>
+    <canvas id="equipmentPieChart" width="400" height="400"></canvas>
+
+    <script>
+      const eqTypes = {{ eq_types|safe }};
+      const eqTypeCounts = {{ eq_type_counts|safe }};
+      const ctx = document.getElementById('equipmentPieChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: eqTypes,
+          datasets: [{
+            label: 'Equipment Count',
+            data: eqTypeCounts,
+            backgroundColor: [
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+            ],
+            borderColor: [
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(153, 102, 255, 1)',
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+        }
+      });
+    </script>
+</body>
+</html>
+{% endblock %}

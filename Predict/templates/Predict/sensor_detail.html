@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MaintPlus{% endblock %}
+
+{% block content %}
+<h1>Sensor Detail: {{ sensor.sensor_type }} for {{ sensor.equipment.name }}</h1>
+<a href="{% url 'sensor_list' %}">Back to Sensors</a>
+
+<h2>Recent Sensor Data</h2>
+<table border="1">
+    <thead>
+        <tr><th>Timestamp</th><th>Value ({{ sensor.unit }})</th></tr>
+    </thead>
+    <tbody>
+        {% for data in sensor_data %}
+            <tr>
+                <td>{{ data.timestamp }}</td>
+                <td>{{ data.value }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="2">No sensor data available.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

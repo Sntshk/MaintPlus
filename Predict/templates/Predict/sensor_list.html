@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+Dashboard - MaintPlus
+
+<h1>Sensor List</h1>
+<a href="{% url 'predict_index' %}">Back to Dashboard</a>
+<ul>
+    {% for sensor in sensors %}
+        <li>
+            <a href="{% url 'sensor_detail' sensor.pk %}">
+                {{ sensor.equipment.name }} - {{ sensor.sensor_type }}
+            </a>
+        </li>
+    {% empty %}
+        <li>No sensors found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

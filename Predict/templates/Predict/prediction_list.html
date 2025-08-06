@@ -1,0 +1,50 @@
+<!-- Predict/templates/Predict/prediction_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recent Predictions</title>
+</head>
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MaintPlus{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Latest Predictions</h1>
+    <a href="{% url 'predict_index' %}">Back to Dashboard</a>
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Prediction Time</th>
+                <th>Equipment</th>
+                <th>Sensor</th>
+                <th>Predicted Fault</th>
+                <th>Confidence</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prediction in predictions %}
+                <tr>
+                    <td>{{ prediction.prediction_time }}</td>
+                    <td>{{ prediction.equipment.name }}</td>
+                   <td>{% if prediction.sensor %}
+                            {{ prediction.sensor.sensor_type }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+  <td>{{ prediction.predicted_fault }}</td>
+                    <td>{{ prediction.confidence_score|floatformat:2 }}</td>
+                    <td>{{ prediction.status }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">No predictions available.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+{% endblock %}

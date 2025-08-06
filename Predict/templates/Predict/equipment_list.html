@@ -1,0 +1,28 @@
+<!-- Predict/templates/Predict/equipment_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Equipment List</title>
+</head>
+<body>
+    <h1>Equipment List</h1>
+    <a href="{% url 'predict_index' %}">Back to Dashboard</a>
+
+    <ul>
+        {% for equipment in equipments %}
+            <li>
+                <a href="{% url 'equipment_detail' equipment.pk %}">
+                    {{ equipment.name }} ({{ equipment.type }})
+                </a>
+            </li>
+        {% empty %}
+            <li>No equipment found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+{% endblock %}
